@@ -1,0 +1,125 @@
+extends layout
+
+block content
+  legend Reported Comments
+  if flaggedComments.length == 0
+    .alert.alert-warning
+      | Nothing has been reported.
+  else
+    table.table
+      tbody
+        for comment in flaggedComments
+          tr(id='tr-#{comment.id}')
+            td
+              i.icon-comment
+              |  Posted by
+              if comment.creator
+                strong  #{comment.creator.userName}
+              else
+                strong  User_No_Longer_Exists
+              |  under&nbsp;
+              a(href='/games/#{comment.game.slug}') #{comment.game.title}
+              br
+              p
+                blockquote= comment.body
+              btn.btn.btn-small(id='ignore-#{comment.id}')
+                i.icon.icon-ok-circle
+                |  Ignore Report
+              | &nbsp;
+              if !comment.hasBeenWarned && comment.creator
+                btn.btn.btn-small.btn-warning(id='warn-#{comment.id}')
+                  i.icon-flag.icon-white
+                  |  Send Warning to the User
+              | &nbsp;
+              btn.btn.btn-small.btn-danger(id='delete-#{comment.id}')
+                i.icon-trash.icon-white
+                |  Delete Comment
+
+              script(type='text/javascript')
+                $('#ignore-#{comment.id}').click(function() {
+                  $.post('/admin/comment/ignore', { commentId: '#{comment.id}' });
+                  $('#tr-#{comment.id}').remove();
+                  humane.log('Comment has been ignored');
+                  return false;
+                });
+
+              script(type='text/javascript')
+                $('#warn-#{comment.id}').click(function() {
+                  $.post('/admin/comment/warn', { commentId: '#{comment.id}' });
+                  $(this).remove();
+                  humane.log('Warning has been sent to the user');
+                  return false;
+                });
+
+              script(type='text/javascript')
+                $('#delete-#{comment.id}').click(function() {
+                   $.post('/admin/comment/delete', { commentId: '#{comment.id}' });
+                   $('#tr-#{comment.id}').remove();
+                   humane.log('Comment has been removed');
+                   return false;
+                 });
+
+  legend List of Users
+  table.table.table-hover.table-bordered
+    thead
+      tr
+        th
+          i.icon-user
+          |  User
+        th
+          i.icon-warning-sign
+          |  Rating Warnings
+        th
+          i.icon-warning-sign
+          |  Comment Warnings
+        th
+          i.icon-globe
+          |  Status
+        th
+          i.icon-wrench
+          |  Action
+      tbody
+        for user in users
+          if user.commentFlagCount === 0 && user.ratingFlagCount === 0
+            tr.success
+              td #{user.userName}
+              td #{user.ratingFlagCount}
+              td #{user.commentFlagCount}
+              td OK
+              td None
+
+          if (user.commentFlagCount >= 1 && !user.suspendedAccount) || (user.ratingFlagCount > 0 && !user.suspendedRating)
+            tr.warning
+              td #{user.userName}
+              td #{user.ratingFlagCount}
+              td #{user.commentFlagCount}
+              td Warning
+              td None
+
+          if user.suspendedAccount
+            tr.error
+              td #{user.userName}
+              td #{user.ratingFlagCount}
+              td #{user.commentFlagCount}
+              td Termination
+              td None
+                
+          if user.ratingFlagCount >= 3 && user.suspendedRating && !user.suspendedAccount
+            tr.error
+              td #{user.userName}
+              td #{user.ratingFlagCount}
+              td #{user.commentFlagCount}
+              td Spammer
+              td 
+                btn.btn.btn-success.btn-mini(id='unsuspend-#{user.userName}')
+                  | Pardon
+                
+                script(type='text/javascript')
+                  $('#unsuspend-#{user.userName}').click(function () {
+                     $.post('/admin/rating-unsuspend', { username: '#{user.userName}' });
+                     $(this).remove();
+                     humane.log('User has been unsuspended.');
+                     return false;
+                   });
+
+

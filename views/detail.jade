@@ -1,0 +1,159 @@
+extends layout
+block content
+    br
+    .hero-unit
+        .row
+            .span2
+                img.img-polaroid(src='/img/games/#{game.largeImage}', id="tooltip-#{game.slug}",rel='tooltip', title='YouTube Preview')
+                if game.youtube
+                  script(type='text/javascript').
+                     $("#tooltip-#{game.slug}").tooltip({
+                     html: true,
+                         content: '<iframe width="560" height="315" src="http://www.youtube.com/embed/#{game.youtube}?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>'
+                      });
+    .span7
+        p
+            strong Genre:
+            span  #{game.genre}
+            br
+            strong Price:
+            span  #{game.price}
+            br
+            strong Rating:&nbsp;
+            // check if user has already voted for this game
+            - voted = 'No'
+            if user.userName && game.votedPeople.length > 0
+                for voter in game.votedPeople
+                    if voter == user.userName
+                        - voted = 'Yes'
+            // check if user is suspended
+            - suspended = 'No'
+            if user.userName
+                if user.suspendedRating
+                    - suspended = 'Yes'
+            - ratingAvg = Math.ceil(game.rating/game.votes * 100) / 100 || 0
+            span(class='stars', id='rating-#{game.slug}', data-rating=ratingAvg, data-user=user.userName, data-voted=voted, data-suspended=suspended, data-star-big='Yes')
+            span  #{ratingAvg} (#{game.votes} votes)
+            br
+            strong Comments:
+            span  #{comments.length}
+            br
+            strong Times Purchased:
+            span  #{game.purchaseCounter}
+            br
+        if user.userName
+            // buy button - user already purchased the game
+            - purchaseFlag = false
+            if user.purchasedGames && user.purchasedGames.length > 0
+                for purchased in user.purchasedGames
+                    if purchased.game.slug == game.slug
+                        button.btn.btn-primary.btn-large
+                            i.icon-shopping-cart.icon-white
+                            span  Purchased
+                            - purchaseFlag = true
+            // buy button - user hasn't purchased the game
+            if !purchaseFlag
+                button.btn.btn-primary.btn-large(id='buy-#{game.slug}', data-game-title=game.title, class='buy', role='button', data-toggle='modal')
+                    i.icon-shopping-cart.icon-white
+                    =  game.price
+small
+    i.icon.icon-star
+    span  Tip: Mouse over the game cover to play a video preview.
+h3 Product Summary
+if user.userName
+    != game.summary
+else
+    .alert
+        strong Login Required
+        br
+        Please Please sign-in to view detailed game description and screenshots.
+hr
+.alert.alert-success
+    h4 Recommended Games
+    div Our recommendation engine has picked the following games that you may also enjoy.
+table.table
+    tbody
+        for similarGame in similarGames
+            tr
+                td.span1
+                    a(href='/games/#{game.slug}')
+                        img.tiny-img.img-polaroid(src='/img/games/#{similarGame.largeImage}')
+                td
+                    a(href='/games/#{similarGame.slug}')
+                        strong #{similarGame.title}
+                    div
+                        - similarGameRatingAvg = Math.ceil(similarGame.rating/similarGame.votes * 100) / 100 || 0
+                        span(class='stars', id='rating-#{similarGame.slug}', data-similar-games='Yes', data-rating=similarGameRatingAvg)
+                        span  #{similarGameRatingAvg} (#{similarGame.votes} votes)
+                    div
+                        small.muted Release Date: #{similarGame.releaseDate} | Genre: #{similarGame.genre}
+.alert.alert-info#comments
+    if comments.length == 1
+        h4 #{comments.length} Comment
+    else
+        h4 #{comments.length} Comments
+    div Feel free to leave a comment below about the game. We only ask you to be civil.
+for comment in comments
+    table(id='table-#{comment._id}')
+        tbody
+            tr
+                td.left-table-border(rowspan=4)
+                td
+                    span By
+                    if comment.creator
+                        strong  #{comment.creator.firstName} #{comment.creator.lastName}
+                    else
+                        strong  User No Longer Exists
+            tr
+                td
+                    small.muted #{comment.date.toLocaleDateString()}
+            tr
+                td
+                    p= comment.body
+            tr
+                td
+                    div#result
+                        if comment.creator
+                            if comment.creator.userName == user.userName
+                                a.btn.btn-mini(href='#', id=comment._id)
+                                    i.icon-trash
+                                    span  Delete
+                            else if user.isAdmin
+                                .btn-group
+                                    a.btn.btn-mini(href='#', id='report-#{comment._id}')
+                                        i.icon-flag
+                                        span  Report
+                                    a.btn.btn-mini(href='#', id=comment._id)
+                                        i.icon-trash
+                                        span  Delete
+                            else
+                                a.btn.btn-mini(href='#', id='report-#{comment._id}')
+                                    i.icon-flag
+                                    span  Report
+                        else
+                            .btn-group
+                                a.btn.btn-mini(href='#', id='report-#{comment._id}')
+                                    i.icon-flag
+                                    span  Report
+    script(type='text/javascript') $('##{comment._id}').click(function() {console.log('clicked on delete'); $.post('/comment/delete', { commentId: '#{comment._id}' }); $('#table-#{comment.id}').remove(); $('#hr-#{comment.id}').remove(); humane.log('Comment removed'); return false; }); $('#report-#{comment._id}').click(function() { console.log('clicked on report'); $.post('/comment/report', { comment_id: '#{comment._id}' }); humane.log('Comment has been reported'); return false; });
+hr(id='hr-#{comment._id}')
+if typeof(user.userName) == 'undefined'
+    .alert
+        strong Login Required
+        div Please sign-in to leave a comment.
+else if user.suspendedAccount
+    .alert
+        strong Account Suspended
+        div You are not able to leave comments anymore.
+else
+    i.icon-list-alt
+    span.lead
+        small  comment box
+    form#comment(method='post')
+        .controls
+            textarea.span5(rows=5, id='comment-body', name='comment', maxlength=2000)
+        .controls
+            button.btn.btn-primary(id='add-comment', type='submit')
+                i.icon-comment.icon-white
+                |  Leave Comment
+include buy

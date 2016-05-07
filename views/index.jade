@@ -1,0 +1,62 @@
+extends layout
+block content
+  .page-header
+    p.lead#welcome
+      if user.firstName
+        strong Welcome #{user.firstName},
+        small  here's the top 6 recommended games for you
+        br
+        small.muted How it works:
+        small
+          span  3 games are based on your interests, and 3 games are based on rated & purchased games of similar users
+      else
+        strong Welcome Visitor,
+        small  here's the top 3 most popular games for you
+  
+  .row
+    // user is logged in
+    if user.userName
+      // if user hasn't entered any interests, although he shouldn't even be on this page
+      if recommendedGames.length == 0
+        .alert.alert-warning
+          div Database query returned no results that match your interests.
+      else
+        // otherwise user has purchased at least 3 games so display 3 games
+        // based on interest and 3 games based on purchased games
+        for game in recommendedGames
+          .span2
+            a(href='/games/#{game.slug}')
+              img.img-polaroid.medium(src='/img/games/#{game.largeImage}')
+            br
+            strong
+              a(href='/games/#{game.slug}') #{game.title}
+            div
+              - ratingAvg = Math.ceil(game.rating/game.votes * 100) / 100 || 0
+              span(class='stars', id='rating-#{game.slug}', data-rating=ratingAvg)
+              span  (#{game.votes})
+              br
+              strong #{game.price}
+
+    else
+      // no user is logged-in
+      if games.length == 0
+        .alert.alert-warning
+          | Database query returned no results.
+      else
+        for game in games
+          .span4
+            // game thumbnail
+            a(href='/games/#{game.slug}')
+              img.img-polaroid.large(src='/img/games/#{game.largeImage}')
+
+            // game title
+            h4
+              a(href='/games/#{game.slug}') #{game.title}
+
+            // game rating
+            - averageRating = Math.ceil(game.rating/game.votes * 100) / 100 || 0
+            span(id='#{game.slug}', class='stars', data-rating='#{averageRating}')
+            |  #{averageRating} (#{game.votes} votes)
+
+            // game price
+            h4 #{game.price}

@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  form#registration.form-horizontal(method='post')
+    legend Don't have an account? Register!
+    .control-group
+      label.control-label(for='firstName') First Name
+      .controls
+        input.m-wrap.m-ctrl#firstName(name='firstName', type='text', placeholder='John', autofocus='autofocus')
+    .control-group
+          label.control-label(for='lastName') Last Name
+          .controls
+            input.m-wrap.m-ctrl#lastName(name='lastName', type='text', placeholder='Smith')
+    .control-group
+      label.control-label(for='userEmail') Email
+      .controls
+        input.m-wrap.m-ctrl#userEmail(name='userEmail', type='text', placeholder='email@example.com')
+    .control-group
+      .controls
+        button.btn.btn-primary(type='submit') Register
