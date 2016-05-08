@@ -35,7 +35,7 @@ block content
                 i.icon-trash.icon-white
                 |  Delete Comment
 
-              script(type='text/javascript')
+              script(type='text/javascript').
                 $('#ignore-#{comment.id}').click(function() {
                   $.post('/admin/comment/ignore', { commentId: '#{comment.id}' });
                   $('#tr-#{comment.id}').remove();
@@ -43,7 +43,7 @@ block content
                   return false;
                 });
 
-              script(type='text/javascript')
+              script(type='text/javascript').
                 $('#warn-#{comment.id}').click(function() {
                   $.post('/admin/comment/warn', { commentId: '#{comment.id}' });
                   $(this).remove();
@@ -51,7 +51,7 @@ block content
                   return false;
                 });
 
-              script(type='text/javascript')
+              script(type='text/javascript').
                 $('#delete-#{comment.id}').click(function() {
                    $.post('/admin/comment/delete', { commentId: '#{comment.id}' });
                    $('#tr-#{comment.id}').remove();
@@ -114,7 +114,7 @@ block content
                 btn.btn.btn-success.btn-mini(id='unsuspend-#{user.userName}')
                   | Pardon
                 
-                script(type='text/javascript')
+                script(type='text/javascript').
                   $('#unsuspend-#{user.userName}').click(function () {
                      $.post('/admin/rating-unsuspend', { username: '#{user.userName}' });
                      $(this).remove();

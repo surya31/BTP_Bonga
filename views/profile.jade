@@ -8,13 +8,13 @@ block content
         span.lead
           strong#xbox-gamertag #{xbox.Gamertag}
         .lead
-          img(src='/img/gamerscore.png')      
+          img(src='/img/gamerscore.png')
           small  #{xbox.Gamerscore}
         img(src='#{xbox.Pictures.FullBody}')
       else
         img.img-rounded(src='/img/anonymous_avatar.gif')
       br
-      span.lead 
+      span.lead
         strong #{userProfile.firstName} #{userProfile.lastName}
       br
       span.lead.muted
@@ -48,7 +48,7 @@ block content
           ul.nav.nav-pills
             for interest in userProfile.interests
               li.active
-                a 
+                a
                   i.icon-tag.icon-white
                   span &nbsp;#{interest}
         #tab2
@@ -60,10 +60,10 @@ block content
                     img(src='/img/games/#{purchasedGame.game.largeImage}')
           else
             .alert
-              strong No Purchased Games
-              div You haven't purchased any games yet. Go to a Games tab to purchase a game.
+              strong Koi ni bera
+              div Beta sweetie, no no.
 
-    
+
       legend Xbox Live Achievements
       if userProfile.gamertag && xbox
         for lastPlayedGame in xbox.LastPlayed
@@ -77,18 +77,18 @@ block content
                 td
                   i.icon-th-large
                   |  Game Score: #{lastPlayedGame.EarnedGamerscore}
-                td 
+                td
                   i.icon-ok
                   |  Achievements: #{lastPlayedGame.EarnedAchievements}
               tr
-                td 
+                td
                   i.icon-th
                   |  Available Game Score: #{lastPlayedGame.AvailableGamerscore}
-                td 
+                td
                   i.icon-star
                   |  Total Achievements: #{lastPlayedGame.AvailableAchievements}
               tr
-                td(colspan='2') 
+                td(colspan='2')
                   i.icon-ok-circle
                   strong  Completed: #{lastPlayedGame.PercentageComplete}
                   .progress.progress-success.active.progress-striped
@@ -98,28 +98,28 @@ block content
           strong Gamertag Required
           div Add Gamertag on the account page to view your last played game achievements on Xbox Live.
 
-                
-      script(type='text/javascript')
+      script(type='text/javascript').
         function resetTabs(){
             $("#content > div").hide(); //Hide all content
-            $("#tabs a").attr("id",""); //Reset id's      
+            $("#tabs a").attr("id",""); //Reset id's
         }
 
+
         var myUrl = window.location.href; //get URL
-        var myUrlTab = myUrl.substring(myUrl.indexOf("#")); // For localhost/tabs.html#tab2, myUrlTab = #tab2     
+        var myUrlTab = myUrl.substring(myUrl.indexOf("#")); // For localhost/tabs.html#tab2, myUrlTab = #tab2
         var myUrlTabName = myUrlTab.substring(0,4); // For the above example, myUrlTabName = #tab
 
         (function(){
             $("#content > div").hide(); // Initially hide all content
             $("#tabs li:first a").attr("id","current"); // Activate first tab
             $("#content > div:first").fadeIn(); // Show first tab content
-            
+
             $("#tabs a").on("click",function(e) {
                 e.preventDefault();
                 if ($(this).attr("id") == "current"){ //detection for current tab
-                 return       
+                 return
                 }
-                else{             
+                else{
                 resetTabs();
                 $(this).attr("id","current"); // Activate this
                 $($(this).attr('name')).fadeIn(); // Show content for current tab
@@ -130,7 +130,7 @@ block content
               if (myUrlTab == myUrlTabName + i) {
                   resetTabs();
                   $("a[name='"+myUrlTab+"']").attr("id","current"); // Activate url tab
-                  $(myUrlTab).fadeIn(); // Show url tab content        
+                  $(myUrlTab).fadeIn(); // Show url tab content
               }
             }
         })()
